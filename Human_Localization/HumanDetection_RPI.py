@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2
 import math
 
-# Check available video devices
+# List available video devices
 def list_video_devices():
     index = 0
     arr = []
@@ -16,24 +16,27 @@ def list_video_devices():
         index += 1
     return arr
 
-# List and print video devices
+# Print available video devices
 devices = list_video_devices()
 print("Available video devices:", devices)
 
-# Use the appropriate device index for the external webcam
-external_webcam_index = 1  # Change this to the correct index
+# Use the correct index for your external webcam
+external_webcam_index = 1  # Replace with the correct index
+
+# Initialize video capture
 cap = cv2.VideoCapture(external_webcam_index, cv2.CAP_V4L2)
 cap.set(3, 640)
 cap.set(4, 480)
 
+# Check if the webcam opened successfully
 if not cap.isOpened():
-    print("Error: Could not open webcam.")
+    print(f"Error: Could not open webcam at index {external_webcam_index}.")
     exit()
 
-# model
+# Load YOLO model
 model = YOLO("yolo-Weights/yolov8n.pt")
 
-# object classes
+# Object classes
 classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
               "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
               "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
@@ -46,46 +49,42 @@ classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "trai
               "teddy bear", "hair drier", "toothbrush"
               ]
 
+# Main loop
 while True:
-    success, img = cap.read()
-    if not success:
-        print("Failed to capture image")
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+
+    # Check if frame is captured successfully
+    if not ret:
+        print("Failed to capture frame.")
         break
 
-    results = model(img, stream=True)
+    # Run YOLO model on the frame
+    results = model(frame, stream=True)
 
-    # coordinates
+    # Process detection results
     for r in results:
         boxes = r.boxes
 
         for box in boxes:
-            # bounding box
+            # Bounding box coordinates
             x1, y1, x2, y2 = box.xyxy[0]
-            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)  # convert to int values
+            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
-            # put box in cam
-            cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
+            # Draw bounding box on the frame
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 3)
 
-            # confidence
-            confidence = math.ceil((box.conf[0] * 100)) / 100
-            print("Confidence --->", confidence)
-
-            # class name
+            # Display class name and confidence
             cls = int(box.cls[0])
-            print("Class name -->", classNames[cls])
+            cv2.putText(frame, classNames[cls], (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
-            # object details
-            org = [x1, y1]
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            fontScale = 1
-            color = (255, 0, 0)
-            thickness = 2
+    # Display the frame
+    cv2.imshow('Webcam', frame)
 
-            cv2.putText(img, classNames[cls], org, font, fontScale, color, thickness)
-
-    cv2.imshow('Webcam', img)
-    if cv2.waitKey(1) == ord('q'):
+    # Exit on 'q' key press
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+# Release the capture and close all windows
 cap.release()
 cv2.destroyAllWindows()
