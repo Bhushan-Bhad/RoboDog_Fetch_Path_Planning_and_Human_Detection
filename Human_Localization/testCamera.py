@@ -1,18 +1,25 @@
 import cv2
 
-# Test different capture APIs
-for api in [cv2.CAP_ANY, cv2.CAP_V4L2, cv2.CAP_GSTREAMER]:
-    cap = cv2.VideoCapture(1, api)
-
+def display_camera_preview(index):
+    cap = cv2.VideoCapture(index, cv2.CAP_V4L2)
     if not cap.isOpened():
-        print(f"API {api}: Error: Could not open webcam.")
-    else:
-        print(f"API {api}: Successfully opened webcam.")
-        while True:
-            ret, frame = cap.read()
-            cv2.imshow(f'Test Camera (API {api})', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+        print(f"Error: Could not open webcam at index {index}")
+        return
 
-        cap.release()
-        cv2.destroyAllWindows()
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print(f"Error: Failed to capture frame from webcam at index {index}")
+            break
+
+        cv2.imshow(f"Camera {index}", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    # Example: Display preview for each available camera
+    for index in range(10):  # Adjust range based on the number of cameras you have
+        display_camera_preview(index)
