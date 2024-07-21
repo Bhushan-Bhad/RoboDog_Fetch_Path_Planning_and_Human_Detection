@@ -3,7 +3,7 @@ import cv2
 import math 
 
 # start webcam with dshow backend
-external_webcam_index = 1  # Replace with the correct index
+external_webcam_index = 0  # Replace with the correct index
 cap = cv2.VideoCapture(external_webcam_index, cv2.CAP_DSHOW)
 cap.set(3, 640)
 cap.set(4, 480)
