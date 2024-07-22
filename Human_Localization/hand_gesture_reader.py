@@ -7,10 +7,11 @@ import ctypes
 if platform.system() == "Linux":
     # Force libgomp to be loaded before other libraries consuming dynamic TLS (to avoid running out of STATIC_TLS)
     try:
-        ctypes.cdll.LoadLibrary("libgomp.so.1")
+        ctypes.cdll.LoadLibrary("/usr/lib/arm-linux-gnueabihf/libgomp.so.1")
     except OSError as e:
         print(f"Error loading libgomp: {e}")
-        
+
+
 import mediapipe as mp
 import cv2
 import numpy as np
