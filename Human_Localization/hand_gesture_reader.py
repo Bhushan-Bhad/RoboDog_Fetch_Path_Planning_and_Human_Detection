@@ -11,14 +11,13 @@ if platform.system() == "Linux":
     except OSError as e:
         print(f"Error loading libgomp: {e}")
 
-
+import sklearn
 import mediapipe as mp
-import cv2
 import numpy as np
 import joblib
 import pyautogui as pag
 from tensorflow.keras.models import load_model
-
+import cv2
 
 
 model_name_rf = 'model_rf__date_time_2024_07_21__20_33_58__acc_1.0__hand__oneimage.pkl'
