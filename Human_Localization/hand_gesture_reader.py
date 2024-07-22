@@ -1,14 +1,6 @@
 # hand_gesture_reader.py
 # opens the webcam, predicts the gesture shown, activates arrow keys
 # press Q to close the webcam
-
-import mediapipe as mp
-import cv2
-import numpy as np
-import joblib
-import pyautogui as pag
-from tensorflow.keras.models import load_model
-
 import platform
 import ctypes
 
@@ -19,6 +11,15 @@ if platform.system() == "Linux":
     except OSError as e:
         print(f"Error loading libgomp: {e}")
         
+import mediapipe as mp
+import cv2
+import numpy as np
+import joblib
+import pyautogui as pag
+from tensorflow.keras.models import load_model
+
+
+
 model_name_rf = 'model_rf__date_time_2024_07_21__20_33_58__acc_1.0__hand__oneimage.pkl'
 model_name_xgb = 'model_xgb__date_time_2024_07_21__20_30_17__acc_0.9833333333333333__hand__oneimage.pkl'
 model_name_nn = 'model_nn__date_time_2024_07_21__20_35_40__loss_0.3929634690284729__acc_1.0__hand__oneimage.h5'
