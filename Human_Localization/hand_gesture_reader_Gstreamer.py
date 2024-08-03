@@ -38,10 +38,10 @@ current_command = None
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.4)
 capture = cv2.VideoCapture(0)  # 0 integrated | 1 plugged
 
-# GStreamer pipeline for streaming via UDP
+# Simplified GStreamer pipeline for testing
 gst_str = (
-    'appsrc ! videoconvert ! video/x-raw,format=I420 ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! '
-    'rtph264pay ! udpsink host=192.168.0.103 port=5000'
+    'appsrc ! videoconvert ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! rtph264pay ! '
+    'udpsink host=192.168.0.103 port=5000'
 )
 
 # Initialize VideoWriter with the GStreamer pipeline
