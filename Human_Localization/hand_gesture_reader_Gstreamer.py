@@ -41,12 +41,14 @@ capture = cv2.VideoCapture(0)  # 0 integrated | 1 plugged
 
 # GStreamer pipeline for streaming via UDP
 gst_str = (
-    'appsrc ! videoconvert ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! '
+    'appsrc ! videoconvert ! video/x-raw,format=I420 ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! '
     'rtph264pay ! udpsink host=192.168.0.103 port=5000'
 )
 
 # Open a subprocess with the GStreamer pipeline
-process = subprocess.Popen(['gst-launch-1.0', gst_str], stdin=subprocess.PIPE, shell=True)
+process = subprocess.Popen(
+    ['gst-launch-1.0', '-v', gst_str], stdin=subprocess.PIPE, shell=False
+)
 
 while capture.isOpened():
     ret, frame = capture.read()
@@ -89,7 +91,10 @@ while capture.isOpened():
             current_command = yhat
 
     # Write the frame to the GStreamer pipeline
-    process.stdin.write(frame.tobytes())
+    try:
+        process.stdin.write(frame.tobytes())
+    except BrokenPipeError:
+        break
 
 capture.release()
 process.stdin.close()
