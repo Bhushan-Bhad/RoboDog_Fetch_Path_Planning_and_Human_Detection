@@ -14,7 +14,6 @@ import joblib
 import pyautogui as pag
 from tensorflow.keras.models import load_model
 import cv2
-import subprocess
 
 model_name_rf = 'model_rf__date_time_2024_07_21__20_33_58__acc_1.0__hand__oneimage.pkl'
 model_name_xgb = 'model_xgb__date_time_2024_07_21__20_30_17__acc_0.9833333333333333__hand__oneimage.pkl'
@@ -45,10 +44,12 @@ gst_str = (
     'rtph264pay ! udpsink host=192.168.0.103 port=5000'
 )
 
-# Open a subprocess with the GStreamer pipeline
-process = subprocess.Popen(
-    ['gst-launch-1.0', '-v', gst_str], stdin=subprocess.PIPE, shell=False
-)
+# Initialize VideoWriter with the GStreamer pipeline
+out = cv2.VideoWriter(gst_str, cv2.CAP_GSTREAMER, 0, 20, (640, 480), True)
+
+if not out.isOpened():
+    print("Error: Could not open GStreamer pipeline.")
+    exit()
 
 while capture.isOpened():
     ret, frame = capture.read()
@@ -91,13 +92,12 @@ while capture.isOpened():
             current_command = yhat
 
     # Write the frame to the GStreamer pipeline
-    try:
-        process.stdin.write(frame.tobytes())
-    except BrokenPipeError:
+    out.write(frame)
+
+    cv2.imshow('Hand Gesture Reader', image)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 capture.release()
-process.stdin.close()
-process.wait()
-
+out.release()
 cv2.destroyAllWindows()
