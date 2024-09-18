@@ -8,10 +8,10 @@ if platform.system() == "Linux":
     except OSError as e:
         print(f"Error loading libgomp: {e}")
 
-import cv2
 import numpy as np
 import mediapipe as mp
 from ultralytics import YOLO  # Make sure you have installed the ultralytics package
+import cv2
 
 # Load YOLOv8 model (nano version)
 model = YOLO("yolo-Weights/yolov8n.pt")  # Ensure the correct path to your YOLOv8 weights
