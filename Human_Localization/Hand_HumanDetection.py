@@ -1,3 +1,13 @@
+import platform
+import ctypes
+
+if platform.system() == "Linux":
+    # Force libgomp to be loaded before other libraries consuming dynamic TLS (to avoid running out of STATIC_TLS)
+    try:
+        ctypes.cdll.LoadLibrary("/usr/lib/aarch64-linux-gnu/libgomp.so.1")
+    except OSError as e:
+        print(f"Error loading libgomp: {e}")
+
 import cv2
 import numpy as np
 import mediapipe as mp
