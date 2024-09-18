@@ -27,11 +27,13 @@ with mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5) a
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
 
-        # Process YOLO results (filter only human detections)
-        humans = [r for r in results if r.names[r.boxes[0].cls[0].item()] == 'person']
+        # Filter YOLO results for humans (class label 'person' = 0 in most YOLO models)
+        humans = [r for r in results if r.boxes[0].cls[0].item() == 0]  # Assuming class '0' is 'person'
 
         # If human(s) detected, proceed with hand gesture detection
         for human in humans:
+            if not human.boxes:  # Make sure there is at least one detection
+                continue
             box = human.boxes.xyxy[0].cpu().numpy()  # Get bounding box
             x1, y1, x2, y2 = map(int, box)  # Get bounding box coordinates
 
@@ -45,14 +47,14 @@ with mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.5) a
             roi_contiguous = np.ascontiguousarray(roi)
 
             # Detect hands in the cropped ROI (upper body region)
-            results = hands.process(roi_contiguous)
+            hand_results = hands.process(roi_contiguous)
 
-            if results.multi_hand_landmarks:
-                for hand_landmarks, hand_handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+            if hand_results.multi_hand_landmarks:
+                for hand_landmarks, hand_handedness in zip(hand_results.multi_hand_landmarks, hand_results.multi_handedness):
                     # Draw hand landmarks
                     mp_drawing.draw_landmarks(frame[y1:y2, x1:x2], hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-                    # Extract hand landmarks and perform gesture detection (similar to before)
+                    # Extract hand landmarks and perform gesture detection
                     landmarks = hand_landmarks.landmark
                     wrist = landmarks[0]
                     middle_finger_tip = landmarks[12]
